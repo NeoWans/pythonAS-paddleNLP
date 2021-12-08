@@ -1,7 +1,9 @@
 import zipfile
 import os
 import random
+import csv
 import pandas as pd
+from pandas import DataFrame
 from PIL import Image
 from PIL import ImageEnhance
 import json
@@ -26,7 +28,8 @@ from utils import load_vocab, convert_example
 # rumor_class_dirs = os.listdir(target_path+"/CED_Dataset/rumor-repost/")
 # non_rumor_class_dirs = os.listdir(target_path+"/CED_Dataset/non-rumor-repost/")
 # original_microblog = target_path+"/CED_Dataset/original-microblog/"
-original_data = pd.read_csv('challenging/data/train.csv')
+original_data = 'challenging/data/train.csv'
+test_data = 'challenging/data/test.csv'
 
 #谣言标签为0，非谣言标签为1
 rumor_label = "1"
@@ -35,64 +38,67 @@ non_rumor_label = "0"
 #分别统计谣言数据与非谣言数据的总数
 rumor_num = 0
 non_rumor_num = 0
+test_num = 0
 
 all_rumor_list = []
 all_non_rumor_list = []
+test_list = []
+
 
 #解析谣言数据
-# for rumor_class_dir in rumor_class_dirs:
-#     if(rumor_class_dir != '.DS_Store'):
-#         #遍历谣言数据，并解析
-#         with open(original_microblog + rumor_class_dir, 'r') as f:
-# 	        rumor_content = f.read()
-#         rumor_dict = json.loads(rumor_content)
-#         all_rumor_list.append(rumor_dict["text"]+"\t"+rumor_label+"\n")
-#         rumor_num +=1
-for i in original_data.index.values:
-    if i == 0:
-        continue
-    if original_data.ix[i, "Label"].values == "0":
-        all_non_rumor_list.append(original_data.ix[i, "Title"].values + "\t" +
-                                  original_data.ix[i, "Label"].values + "\n")
-        non_rumor_num += 1
-    else:
-        all_rumor_list.append(original_data.ix[i, "Title"].values + "\t" +
-                              original_data.ix[i, "Label"].values + "\n")
-        rumor_num += 1
+with open(original_data, "r", encoding = 'utf-8') as f:
+    text = csv.reader(f)
+    for i in text:
+        if i[5] != "1" and i[5] != "0":
+            continue
+        if i[5] == "1":
+            all_rumor_list.append(i[0] + i[1]+"\t"+i[5]+"\n")
+            rumor_num +=1
+        else:
+            all_non_rumor_list.append(i[0] + i[1]+"\t"+i[5]+"\n")
+            non_rumor_num +=1
 
-#解析非谣言数据
-# for non_rumor_class_dir in non_rumor_class_dirs:
-#     if(non_rumor_class_dir != '.DS_Store'):
-#         with open(original_microblog + non_rumor_class_dir, 'r') as f2:
-# 	        non_rumor_content = f2.read()
-#         non_rumor_dict = json.loads(non_rumor_content)
-#         all_non_rumor_list.append(non_rumor_dict["text"]+"\t"+non_rumor_label+"\n")
-#         non_rumor_num +=1
+with open(test_data, "r", encoding = 'utf-8') as f:
+    text = csv.reader(f)
+    for i in text:
+        if i[5] != "1" and i[5] != "0":
+            continue
+        test_list.append(i[0] + i[1]+"\t"+i[5]+"\n")
+        test_num += 1
 
 print("谣言数据总量为：" + str(rumor_num))
 print("非谣言数据总量为：" + str(non_rumor_num))
 data_list_path = "data/"
 all_data_path = data_list_path + "all_data.txt"
-
+test_data_path = data_list_path + "test_data.txt"
 all_data_list = all_rumor_list + all_non_rumor_list
 
 random.shuffle(all_data_list)
+random.shuffle(test_list)
 
 #在生成all_data.txt之前，首先将其清空
 with open(all_data_path, 'w') as f:
     f.seek(0)
     f.truncate()
 
+with open(test_data_path, 'w') as f:
+    f.seek(0)
+    f.truncate()
+
 with open(all_data_path, 'a') as f:
     for data in all_data_list:
         f.write(data)
+
+with open(test_data_path, 'a') as f:
+    for data in test_list:
+        f.write(data)
+
 with open(os.path.join(data_list_path, 'eval_list.txt'), 'w',
           encoding='utf-8') as f_eval:
     f_eval.seek(0)
     f_eval.truncate()
 
-with open(os.path.join(data_list_path, 'train_list.txt'),
-          'w',
+with open(os.path.join(data_list_path, 'train_list.txt'), 'w',
           encoding='utf-8') as f_train:
     f_train.seek(0)
     f_train.truncate()
@@ -101,23 +107,29 @@ with open(os.path.join(data_list_path, 'all_data.txt'), 'r',
           encoding='utf-8') as f_data:
     lines = f_data.readlines()
 
+with open(os.path.join(data_list_path, 'test_data.txt'), 'r',
+          encoding='utf-8') as f_test_init:
+    eval_lines = f_test_init.readlines()
+
 i = 0
-with open(os.path.join(data_list_path, 'eval_list.txt'), 'a',
-          encoding='utf-8') as f_eval, open(os.path.join(
-              data_list_path, 'train_list.txt'),
-                                            'a',
-                                            encoding='utf-8') as f_train:
+with open(os.path.join(data_list_path, 'train_list.txt'), 'a', encoding='utf-8') as f_train:
     for line in lines:
         words = line.split('\t')[-1].replace('\n', '')
         label = line.split('\t')[0]
         labs = ""
-        if i % 8 == 0:
-            labs = label + '\t' + words + '\n'
-            f_eval.write(labs)
-        else:
-            labs = label + '\t' + words + '\n'
-            f_train.write(labs)
+        labs = label + '\t' + words + '\n'
+        f_train.write(labs)
         i += 1
+
+j = 0
+with open(os.path.join(data_list_path, 'eval_list.txt'), 'a', encoding='utf-8') as f_test:
+    for line in eval_lines:
+        words = line.split('\t')[-1].replace('\n', '')
+        label = line.split('\t')[0]
+        labs = ""
+        labs = label + '\t' + words + '\n'
+        f_test.write(labs)
+        j += 1
 
 print("数据列表生成完成！")
 
@@ -320,7 +332,7 @@ model.fit(train_loader,
           callbacks=callback)
 results = model.evaluate(dev_loader)
 print("Finally test acc: %.5f" % results['acc'])
-label_map = {0: '谣言', 1: '非谣言'}
+label_map = {1: '谣言', 0: '非谣言'}
 results = model.predict(dev_loader, batch_size=128)[0]
 predictions = []
 
