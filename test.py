@@ -16,19 +16,18 @@ from paddlenlp.datasets import MapDatasetWrapper
 
 from utils import load_vocab, convert_example
 
-src_path = "/home/wans/src/python/paddleNLP/Rumor_Dataset.zip"
-target_path = "/home/wans/src/python/paddleNLP/Chinese_Rumor_Dataset-master"
-if(not os.path.isdir(target_path)):
-    z = zipfile.ZipFile(src_path, 'r')
-    z.extractall(path=target_path)
-    z.close()
+target_path = "Chinese_Rumor_Dataset-master/"
+# if(not os.path.isdir(target_path)):
+#     z = zipfile.ZipFile(src_path, 'r')
+#     z.extractall(path=target_path)
+#     z.close()
 # 分别为谣言数据、非谣言数据、全部数据的文件路径
 rumor_class_dirs = os.listdir(
-    target_path+"/Chinese_Rumor_Dataset-master/CED_Dataset/rumor-repost/")
+    target_path+"CED_Dataset/rumor-repost/")
 non_rumor_class_dirs = os.listdir(
-    target_path+"/Chinese_Rumor_Dataset-master/CED_Dataset/non-rumor-repost/")
+    target_path+"CED_Dataset/non-rumor-repost/")
 original_microblog = target_path + \
-    "/Chinese_Rumor_Dataset-master/CED_Dataset/original-microblog/"
+    "CED_Dataset/original-microblog/"
 
 # 谣言标签为0，非谣言标签为1
 rumor_label = "0"
@@ -65,7 +64,7 @@ for non_rumor_class_dir in non_rumor_class_dirs:
 
 print("谣言数据总量为："+str(rumor_num))
 print("非谣言数据总量为："+str(non_rumor_num))
-data_list_path = "/home/wans/src/python/paddleNLP/data/"
+data_list_path = "data/"
 all_data_path = data_list_path + "all_data.txt"
 
 all_data_list = all_rumor_list + all_non_rumor_list
