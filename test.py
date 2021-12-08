@@ -22,10 +22,9 @@ target_path = "Chinese_Rumor_Dataset-master/"
 #     z.extractall(path=target_path)
 #     z.close()
 # 分别为谣言数据、非谣言数据、全部数据的文件路径
-rumor_class_dirs = os.listdir(
-    target_path+"CED_Dataset/rumor-repost/")
-non_rumor_class_dirs = os.listdir(
-    target_path+"CED_Dataset/non-rumor-repost/")
+rumor_class_dirs = os.listdir(target_path + "CED_Dataset/rumor-repost/")
+non_rumor_class_dirs = os.listdir(target_path +
+                                  "CED_Dataset/non-rumor-repost/")
 original_microblog = target_path + \
     "CED_Dataset/original-microblog/"
 
@@ -40,30 +39,28 @@ non_rumor_num = 0
 all_rumor_list = []
 all_non_rumor_list = []
 
-
 # 解析谣言数据
 for rumor_class_dir in rumor_class_dirs:
-    if(rumor_class_dir != '.DS_Store'):
+    if (rumor_class_dir != '.DS_Store'):
         # 遍历谣言数据，并解析
         with open(original_microblog + rumor_class_dir, 'r') as f:
             rumor_content = f.read()
         rumor_dict = json.loads(rumor_content)
-        all_rumor_list.append(rumor_dict["text"]+"\t"+rumor_label+"\n")
+        all_rumor_list.append(rumor_dict["text"] + "\t" + rumor_label + "\n")
         rumor_num += 1
-
 
 # 解析非谣言数据
 for non_rumor_class_dir in non_rumor_class_dirs:
-    if(non_rumor_class_dir != '.DS_Store'):
+    if (non_rumor_class_dir != '.DS_Store'):
         with open(original_microblog + non_rumor_class_dir, 'r') as f2:
             non_rumor_content = f2.read()
         non_rumor_dict = json.loads(non_rumor_content)
-        all_non_rumor_list.append(
-            non_rumor_dict["text"]+"\t"+non_rumor_label+"\n")
+        all_non_rumor_list.append(non_rumor_dict["text"] + "\t" +
+                                  non_rumor_label + "\n")
         non_rumor_num += 1
 
-print("谣言数据总量为："+str(rumor_num))
-print("非谣言数据总量为："+str(non_rumor_num))
+print("谣言数据总量为：" + str(rumor_num))
+print("非谣言数据总量为：" + str(non_rumor_num))
 data_list_path = "data/"
 all_data_path = data_list_path + "all_data.txt"
 
@@ -79,19 +76,27 @@ with open(all_data_path, 'w') as f:
 with open(all_data_path, 'a') as f:
     for data in all_data_list:
         f.write(data)
-with open(os.path.join(data_list_path, 'eval_list.txt'), 'w', encoding='utf-8') as f_eval:
+with open(os.path.join(data_list_path, 'eval_list.txt'), 'w',
+          encoding='utf-8') as f_eval:
     f_eval.seek(0)
     f_eval.truncate()
 
-with open(os.path.join(data_list_path, 'train_list.txt'), 'w', encoding='utf-8') as f_train:
+with open(os.path.join(data_list_path, 'train_list.txt'),
+          'w',
+          encoding='utf-8') as f_train:
     f_train.seek(0)
     f_train.truncate()
 
-with open(os.path.join(data_list_path, 'all_data.txt'), 'r', encoding='utf-8') as f_data:
+with open(os.path.join(data_list_path, 'all_data.txt'), 'r',
+          encoding='utf-8') as f_data:
     lines = f_data.readlines()
 
 i = 0
-with open(os.path.join(data_list_path, 'eval_list.txt'), 'a', encoding='utf-8') as f_eval, open(os.path.join(data_list_path, 'train_list.txt'), 'a', encoding='utf-8') as f_train:
+with open(os.path.join(data_list_path, 'eval_list.txt'), 'a',
+          encoding='utf-8') as f_eval, open(os.path.join(
+              data_list_path, 'train_list.txt'),
+                                            'a',
+                                            encoding='utf-8') as f_train:
     for line in lines:
         words = line.split('\t')[-1].replace('\n', '')
         label = line.split('\t')[0]
@@ -143,7 +148,6 @@ print(label_list)
 for i in range(10):
     print(train_ds[i])
 
-
 dict_path = 'data/dict.txt'
 
 # 创建数据字典，存放位置：dicts.txt。在生成之前先清空dict.txt
@@ -151,7 +155,6 @@ dict_path = 'data/dict.txt'
 with open(dict_path, 'w') as f:
     f.seek(0)
     f.truncate()
-
 
 dict_set = set()
 train_data = open('data/train_list.txt')
@@ -186,21 +189,19 @@ def create_dataloader(dataset,
 
     # return_list 数据是否以list形式返回
     # collate_fn  指定如何将样本列表组合为mini-batch数据。传给它参数需要是一个callable对象，需要实现对组建的batch的处理逻辑，并返回每个batch的数据。在这里传入的是`prepare_input`函数，对产生的数据进行pad操作，并返回实际长度等。
-    dataloader = paddle.io.DataLoader(
-        dataset,
-        return_list=True,
-        batch_size=batch_size,
-        collate_fn=batchify_fn)
+    dataloader = paddle.io.DataLoader(dataset,
+                                      return_list=True,
+                                      batch_size=batch_size,
+                                      collate_fn=batchify_fn)
 
     return dataloader
 
 
 # python中的偏函数partial，把一个函数的某些参数固定住（也就是设置默认值），返回一个新的函数，调用这个新函数会更简单。
-trans_function = partial(
-    convert_example,
-    vocab=vocab,
-    unk_token_id=vocab.get('[UNK]', 1),
-    is_test=False)
+trans_function = partial(convert_example,
+                         vocab=vocab,
+                         unk_token_id=vocab.get('[UNK]', 1),
+                         is_test=False)
 
 # 将读入的数据batch化处理，便于模型batch化运算。
 # batch中的每个句子将会padding到这个batch中的文本最大长度batch_max_seq_len。
@@ -211,19 +212,16 @@ batchify_fn = lambda samples, fn=Tuple(
     Stack(dtype="int64")  # label
 ): [data for data in fn(samples)]
 
-
-train_loader = create_dataloader(
-    train_ds,
-    trans_function=trans_function,
-    batch_size=32,
-    mode='train',
-    batchify_fn=batchify_fn)
-dev_loader = create_dataloader(
-    dev_ds,
-    trans_function=trans_function,
-    batch_size=32,
-    mode='validation',
-    batchify_fn=batchify_fn)
+train_loader = create_dataloader(train_ds,
+                                 trans_function=trans_function,
+                                 batch_size=32,
+                                 mode='train',
+                                 batchify_fn=batchify_fn)
+dev_loader = create_dataloader(dev_ds,
+                               trans_function=trans_function,
+                               batch_size=32,
+                               mode='validation',
+                               batchify_fn=batchify_fn)
 
 
 class LSTMModel(nn.Layer):
@@ -241,10 +239,9 @@ class LSTMModel(nn.Layer):
         super().__init__()
 
         # 首先将输入word id 查表后映射成 word embedding
-        self.embedder = nn.Embedding(
-            num_embeddings=vocab_size,
-            embedding_dim=emb_dim,
-            padding_idx=padding_idx)
+        self.embedder = nn.Embedding(num_embeddings=vocab_size,
+                                     embedding_dim=emb_dim,
+                                     padding_idx=padding_idx)
 
         # 将word embedding经过LSTMEncoder变换到文本语义表征空间中
         self.lstm_encoder = ppnlp.seq2vec.LSTMEncoder(
@@ -288,14 +285,13 @@ class LSTMModel(nn.Layer):
         return probs
 
 
-model = LSTMModel(
-    len(vocab),
-    len(label_list),
-    direction='bidirectional',
-    padding_idx=vocab['[PAD]'])
+model = LSTMModel(len(vocab),
+                  len(label_list),
+                  direction='bidirectional',
+                  padding_idx=vocab['[PAD]'])
 model = paddle.Model(model)
-optimizer = paddle.optimizer.Adam(
-    parameters=model.parameters(), learning_rate=5e-5)
+optimizer = paddle.optimizer.Adam(parameters=model.parameters(),
+                                  learning_rate=5e-5)
 
 loss = paddle.nn.CrossEntropyLoss()
 metric = paddle.metric.Accuracy()
@@ -304,8 +300,12 @@ model.prepare(optimizer, loss, metric)
 # 设置visualdl路径
 log_dir = './visualdl'
 callback = paddle.callbacks.VisualDL(log_dir=log_dir)
-model.fit(train_loader, dev_loader, epochs=10,
-          save_dir='./checkpoints', save_freq=5, callbacks=callback)
+model.fit(train_loader,
+          dev_loader,
+          epochs=10,
+          save_dir='./checkpoints',
+          save_freq=5,
+          callbacks=callback)
 results = model.evaluate(dev_loader)
 print("Finally test acc: %.5f" % results['acc'])
 label_map = {0: '谣言', 1: '非谣言'}

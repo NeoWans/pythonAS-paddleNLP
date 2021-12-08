@@ -74,15 +74,16 @@ def create_dataloader(dataset,
         dataset = dataset.apply(trans_fn, lazy=True)
 
     if mode == 'train' and use_gpu:
-        sampler = paddle.io.DistributedBatchSampler(
-            dataset=dataset, batch_size=batch_size, shuffle=True)
+        sampler = paddle.io.DistributedBatchSampler(dataset=dataset,
+                                                    batch_size=batch_size,
+                                                    shuffle=True)
     else:
         shuffle = True if mode == 'train' else False
-        sampler = paddle.io.BatchSampler(
-            dataset=dataset, batch_size=batch_size, shuffle=shuffle)
-    dataloader = paddle.io.DataLoader(
-        dataset,
-        batch_sampler=sampler,
-        return_list=True,
-        collate_fn=batchify_fn)
+        sampler = paddle.io.BatchSampler(dataset=dataset,
+                                         batch_size=batch_size,
+                                         shuffle=shuffle)
+    dataloader = paddle.io.DataLoader(dataset,
+                                      batch_sampler=sampler,
+                                      return_list=True,
+                                      collate_fn=batchify_fn)
     return dataloader
