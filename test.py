@@ -1,7 +1,7 @@
-import jieba
 import zipfile
 import os
 import random
+import pandas as pd
 from PIL import Image
 from PIL import ImageEnhance
 import json
@@ -16,59 +16,70 @@ from paddlenlp.datasets import MapDatasetWrapper
 
 from utils import load_vocab, convert_example
 
-target_path = "Chinese_Rumor_Dataset-master/"
+# src_path="/home/wans/src/python/pythonAS-paddleNLP/Rumor_Dataset.zip"
+# target_path="/home/wans/src/python/pythonAS-paddleNLP/Chinese_Rumor_Dataset-master"
 # if(not os.path.isdir(target_path)):
 #     z = zipfile.ZipFile(src_path, 'r')
 #     z.extractall(path=target_path)
 #     z.close()
-# 分别为谣言数据、非谣言数据、全部数据的文件路径
-rumor_class_dirs = os.listdir(target_path + "CED_Dataset/rumor-repost/")
-non_rumor_class_dirs = os.listdir(target_path +
-                                  "CED_Dataset/non-rumor-repost/")
-original_microblog = target_path + \
-    "CED_Dataset/original-microblog/"
+#分别为谣言数据、非谣言数据、全部数据的文件路径
+# rumor_class_dirs = os.listdir(target_path+"/CED_Dataset/rumor-repost/")
+# non_rumor_class_dirs = os.listdir(target_path+"/CED_Dataset/non-rumor-repost/")
+# original_microblog = target_path+"/CED_Dataset/original-microblog/"
+original_data = pd.read_csv(
+    '/home/wans/src/python/pythonAS-paddleNLP/challenging/data/train.csv')
 
-# 谣言标签为0，非谣言标签为1
-rumor_label = "0"
-non_rumor_label = "1"
+#谣言标签为0，非谣言标签为1
+rumor_label = "1"
+non_rumor_label = "0"
 
-# 分别统计谣言数据与非谣言数据的总数
+#分别统计谣言数据与非谣言数据的总数
 rumor_num = 0
 non_rumor_num = 0
 
 all_rumor_list = []
 all_non_rumor_list = []
 
-# 解析谣言数据
-for rumor_class_dir in rumor_class_dirs:
-    if (rumor_class_dir != '.DS_Store'):
-        # 遍历谣言数据，并解析
-        with open(original_microblog + rumor_class_dir, 'r') as f:
-            rumor_content = f.read()
-        rumor_dict = json.loads(rumor_content)
-        all_rumor_list.append(rumor_dict["text"] + "\t" + rumor_label + "\n")
+#解析谣言数据
+# for rumor_class_dir in rumor_class_dirs:
+#     if(rumor_class_dir != '.DS_Store'):
+#         #遍历谣言数据，并解析
+#         with open(original_microblog + rumor_class_dir, 'r') as f:
+# 	        rumor_content = f.read()
+#         rumor_dict = json.loads(rumor_content)
+#         all_rumor_list.append(rumor_dict["text"]+"\t"+rumor_label+"\n")
+#         rumor_num +=1
+for i in original_data.index.values:
+    if i == 0:
+        continue
+    if original_data.ix[i, "Label"].values == "0":
+        all_non_rumor_list.append(original_data.ix[i, "Title"].values + "\t" +
+                                  original_data.ix[i, "Label"].values + "\n")
+        non_rumor_num += 1
+    else:
+        all_rumor_list.append(original_data.ix[i, "Title"].values + "\t" +
+                              original_data.ix[i, "Label"].values + "\n")
         rumor_num += 1
 
-# 解析非谣言数据
-for non_rumor_class_dir in non_rumor_class_dirs:
-    if (non_rumor_class_dir != '.DS_Store'):
-        with open(original_microblog + non_rumor_class_dir, 'r') as f2:
-            non_rumor_content = f2.read()
-        non_rumor_dict = json.loads(non_rumor_content)
-        all_non_rumor_list.append(non_rumor_dict["text"] + "\t" +
-                                  non_rumor_label + "\n")
-        non_rumor_num += 1
+#解析非谣言数据
+# for non_rumor_class_dir in non_rumor_class_dirs:
+#     if(non_rumor_class_dir != '.DS_Store'):
+#         with open(original_microblog + non_rumor_class_dir, 'r') as f2:
+# 	        non_rumor_content = f2.read()
+#         non_rumor_dict = json.loads(non_rumor_content)
+#         all_non_rumor_list.append(non_rumor_dict["text"]+"\t"+non_rumor_label+"\n")
+#         non_rumor_num +=1
 
 print("谣言数据总量为：" + str(rumor_num))
 print("非谣言数据总量为：" + str(non_rumor_num))
-data_list_path = "data/"
+data_list_path = "/home/wans/src/python/pythonAS-paddleNLP/data/"
 all_data_path = data_list_path + "all_data.txt"
 
 all_data_list = all_rumor_list + all_non_rumor_list
 
 random.shuffle(all_data_list)
 
-# 在生成all_data.txt之前，首先将其清空
+#在生成all_data.txt之前，首先将其清空
 with open(all_data_path, 'w') as f:
     f.seek(0)
     f.truncate()
@@ -148,10 +159,12 @@ print(label_list)
 for i in range(10):
     print(train_ds[i])
 
+import jieba
+
 dict_path = 'data/dict.txt'
 
-# 创建数据字典，存放位置：dicts.txt。在生成之前先清空dict.txt
-# 在生成all_data.txt之前，首先将其清空
+#创建数据字典，存放位置：dicts.txt。在生成之前先清空dict.txt
+#在生成all_data.txt之前，首先将其清空
 with open(dict_path, 'w') as f:
     f.seek(0)
     f.truncate()
@@ -175,9 +188,9 @@ vocab = load_vocab(dict_path)
 for k, v in vocab.items():
     print(k, v)
     break
+
+
 # Reads data and generates mini-batches.
-
-
 def create_dataloader(dataset,
                       trans_function=None,
                       mode='train',
