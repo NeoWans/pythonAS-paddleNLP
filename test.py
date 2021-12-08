@@ -26,8 +26,7 @@ from utils import load_vocab, convert_example
 # rumor_class_dirs = os.listdir(target_path+"/CED_Dataset/rumor-repost/")
 # non_rumor_class_dirs = os.listdir(target_path+"/CED_Dataset/non-rumor-repost/")
 # original_microblog = target_path+"/CED_Dataset/original-microblog/"
-original_data = pd.read_csv(
-    '/home/wans/src/python/pythonAS-paddleNLP/challenging/data/train.csv')
+original_data = pd.read_csv('challenging/data/train.csv')
 
 #谣言标签为0，非谣言标签为1
 rumor_label = "1"
@@ -72,7 +71,7 @@ for i in original_data.index.values:
 
 print("谣言数据总量为：" + str(rumor_num))
 print("非谣言数据总量为：" + str(non_rumor_num))
-data_list_path = "/home/wans/src/python/pythonAS-paddleNLP/data/"
+data_list_path = "data/"
 all_data_path = data_list_path + "all_data.txt"
 
 all_data_list = all_rumor_list + all_non_rumor_list
