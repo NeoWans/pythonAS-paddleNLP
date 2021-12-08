@@ -18,16 +18,7 @@ from paddlenlp.datasets import MapDatasetWrapper
 
 from utils import load_vocab, convert_example
 
-# src_path="/home/wans/src/python/pythonAS-paddleNLP/Rumor_Dataset.zip"
-# target_path="/home/wans/src/python/pythonAS-paddleNLP/Chinese_Rumor_Dataset-master"
-# if(not os.path.isdir(target_path)):
-#     z = zipfile.ZipFile(src_path, 'r')
-#     z.extractall(path=target_path)
-#     z.close()
-#分别为谣言数据、非谣言数据、全部数据的文件路径
-# rumor_class_dirs = os.listdir(target_path+"/CED_Dataset/rumor-repost/")
-# non_rumor_class_dirs = os.listdir(target_path+"/CED_Dataset/non-rumor-repost/")
-# original_microblog = target_path+"/CED_Dataset/original-microblog/"
+#分别为训练数据、测试数据的文件路径
 original_data = 'challenging/data/train.csv'
 test_data = 'challenging/data/test.csv'
 
@@ -45,7 +36,7 @@ all_non_rumor_list = []
 test_list = []
 
 
-#解析谣言数据
+#解析训练数据
 with open(original_data, "r", encoding = 'utf-8') as f:
     text = csv.reader(f)
     for i in text:
