@@ -1,3 +1,4 @@
+import jieba
 import zipfile
 import os
 import random
@@ -15,22 +16,25 @@ from paddlenlp.datasets import MapDatasetWrapper
 
 from utils import load_vocab, convert_example
 
-src_path="/home/wans/src/python/paddleNLP/Rumor_Dataset.zip"
-target_path="/home/wans/src/python/paddleNLP/Chinese_Rumor_Dataset-master"
+src_path = "/home/wans/src/python/paddleNLP/Rumor_Dataset.zip"
+target_path = "/home/wans/src/python/paddleNLP/Chinese_Rumor_Dataset-master"
 if(not os.path.isdir(target_path)):
     z = zipfile.ZipFile(src_path, 'r')
     z.extractall(path=target_path)
     z.close()
-#分别为谣言数据、非谣言数据、全部数据的文件路径
-rumor_class_dirs = os.listdir(target_path+"/Chinese_Rumor_Dataset-master/CED_Dataset/rumor-repost/")
-non_rumor_class_dirs = os.listdir(target_path+"/Chinese_Rumor_Dataset-master/CED_Dataset/non-rumor-repost/")
-original_microblog = target_path+"/Chinese_Rumor_Dataset-master/CED_Dataset/original-microblog/"
+# 分别为谣言数据、非谣言数据、全部数据的文件路径
+rumor_class_dirs = os.listdir(
+    target_path+"/Chinese_Rumor_Dataset-master/CED_Dataset/rumor-repost/")
+non_rumor_class_dirs = os.listdir(
+    target_path+"/Chinese_Rumor_Dataset-master/CED_Dataset/non-rumor-repost/")
+original_microblog = target_path + \
+    "/Chinese_Rumor_Dataset-master/CED_Dataset/original-microblog/"
 
-#谣言标签为0，非谣言标签为1
-rumor_label="0"
-non_rumor_label="1"
+# 谣言标签为0，非谣言标签为1
+rumor_label = "0"
+non_rumor_label = "1"
 
-#分别统计谣言数据与非谣言数据的总数
+# 分别统计谣言数据与非谣言数据的总数
 rumor_num = 0
 non_rumor_num = 0
 
@@ -38,56 +42,57 @@ all_rumor_list = []
 all_non_rumor_list = []
 
 
-#解析谣言数据
-for rumor_class_dir in rumor_class_dirs: 
+# 解析谣言数据
+for rumor_class_dir in rumor_class_dirs:
     if(rumor_class_dir != '.DS_Store'):
-        #遍历谣言数据，并解析
+        # 遍历谣言数据，并解析
         with open(original_microblog + rumor_class_dir, 'r') as f:
-	        rumor_content = f.read()
+            rumor_content = f.read()
         rumor_dict = json.loads(rumor_content)
         all_rumor_list.append(rumor_dict["text"]+"\t"+rumor_label+"\n")
-        rumor_num +=1
+        rumor_num += 1
 
 
-#解析非谣言数据
-for non_rumor_class_dir in non_rumor_class_dirs: 
+# 解析非谣言数据
+for non_rumor_class_dir in non_rumor_class_dirs:
     if(non_rumor_class_dir != '.DS_Store'):
         with open(original_microblog + non_rumor_class_dir, 'r') as f2:
-	        non_rumor_content = f2.read()
+            non_rumor_content = f2.read()
         non_rumor_dict = json.loads(non_rumor_content)
-        all_non_rumor_list.append(non_rumor_dict["text"]+"\t"+non_rumor_label+"\n")
-        non_rumor_num +=1
-        
+        all_non_rumor_list.append(
+            non_rumor_dict["text"]+"\t"+non_rumor_label+"\n")
+        non_rumor_num += 1
+
 print("谣言数据总量为："+str(rumor_num))
 print("非谣言数据总量为："+str(non_rumor_num))
-data_list_path="/home/wans/src/python/paddleNLP/data/"
-all_data_path=data_list_path + "all_data.txt"
+data_list_path = "/home/wans/src/python/paddleNLP/data/"
+all_data_path = data_list_path + "all_data.txt"
 
 all_data_list = all_rumor_list + all_non_rumor_list
 
 random.shuffle(all_data_list)
 
-#在生成all_data.txt之前，首先将其清空
+# 在生成all_data.txt之前，首先将其清空
 with open(all_data_path, 'w') as f:
     f.seek(0)
-    f.truncate() 
-    
+    f.truncate()
+
 with open(all_data_path, 'a') as f:
     for data in all_data_list:
-        f.write(data) 
+        f.write(data)
 with open(os.path.join(data_list_path, 'eval_list.txt'), 'w', encoding='utf-8') as f_eval:
     f_eval.seek(0)
     f_eval.truncate()
-    
+
 with open(os.path.join(data_list_path, 'train_list.txt'), 'w', encoding='utf-8') as f_train:
     f_train.seek(0)
-    f_train.truncate() 
+    f_train.truncate()
 
 with open(os.path.join(data_list_path, 'all_data.txt'), 'r', encoding='utf-8') as f_data:
     lines = f_data.readlines()
 
 i = 0
-with open(os.path.join(data_list_path, 'eval_list.txt'), 'a', encoding='utf-8') as f_eval,open(os.path.join(data_list_path, 'train_list.txt'), 'a', encoding='utf-8') as f_train:
+with open(os.path.join(data_list_path, 'eval_list.txt'), 'a', encoding='utf-8') as f_eval, open(os.path.join(data_list_path, 'train_list.txt'), 'a', encoding='utf-8') as f_train:
     for line in lines:
         words = line.split('\t')[-1].replace('\n', '')
         label = line.split('\t')[0]
@@ -99,8 +104,10 @@ with open(os.path.join(data_list_path, 'eval_list.txt'), 'a', encoding='utf-8') 
             labs = label + '\t' + words + '\n'
             f_train.write(labs)
         i += 1
-    
+
 print("数据列表生成完成！")
+
+
 class SelfDefinedDataset(paddle.io.Dataset):
     def __init__(self, data):
         super(SelfDefinedDataset, self).__init__()
@@ -111,15 +118,17 @@ class SelfDefinedDataset(paddle.io.Dataset):
 
     def __len__(self):
         return len(self.data)
-        
+
     def get_labels(self):
         return ["0", "1"]
+
 
 def txt_to_list(file_name):
     res_list = []
     for line in open(file_name):
         res_list.append(line.strip().split('\t'))
     return res_list
+
 
 trainlst = txt_to_list('data/train_list.txt')
 devlst = txt_to_list('data/eval_list.txt')
@@ -133,17 +142,16 @@ label_list = train_ds.get_labels()
 print(label_list)
 
 for i in range(10):
-    print (train_ds[i])
+    print(train_ds[i])
 
-import jieba
 
 dict_path = 'data/dict.txt'
 
-#创建数据字典，存放位置：dicts.txt。在生成之前先清空dict.txt
-#在生成all_data.txt之前，首先将其清空
+# 创建数据字典，存放位置：dicts.txt。在生成之前先清空dict.txt
+# 在生成all_data.txt之前，首先将其清空
 with open(dict_path, 'w') as f:
     f.seek(0)
-    f.truncate() 
+    f.truncate()
 
 
 dict_set = set()
@@ -154,7 +162,7 @@ for data in train_data:
         if not datas is " ":
             dict_set.add(datas)
 
-dicts = open(dict_path,'w')
+dicts = open(dict_path, 'w')
 dicts.write('[PAD]\n')
 dicts.write('[UNK]\n')
 for data in dict_set:
@@ -166,6 +174,8 @@ for k, v in vocab.items():
     print(k, v)
     break
 # Reads data and generates mini-batches.
+
+
 def create_dataloader(dataset,
                       trans_function=None,
                       mode='train',
@@ -182,8 +192,9 @@ def create_dataloader(dataset,
         return_list=True,
         batch_size=batch_size,
         collate_fn=batchify_fn)
-        
+
     return dataloader
+
 
 # python中的偏函数partial，把一个函数的某些参数固定住（也就是设置默认值），返回一个新的函数，调用这个新函数会更简单。
 trans_function = partial(
@@ -214,6 +225,8 @@ dev_loader = create_dataloader(
     batch_size=32,
     mode='validation',
     batchify_fn=batchify_fn)
+
+
 class LSTMModel(nn.Layer):
     def __init__(self,
                  vocab_size,
@@ -252,7 +265,7 @@ class LSTMModel(nn.Layer):
     def forward(self, text, seq_len):
         # text shape: (batch_size, num_tokens)
         # print('input :', text.shape)
-        
+
         # Shape: (batch_size, num_tokens, embedding_dim)
         embedded_text = self.embedder(text)
         # print('after word-embeding:', embedded_text.shape)
@@ -262,7 +275,6 @@ class LSTMModel(nn.Layer):
         text_repr = self.lstm_encoder(embedded_text, sequence_length=seq_len)
         # print('after lstm:', text_repr.shape)
 
-
         # Shape: (batch_size, fc_hidden_size)
         fc_out = paddle.tanh(self.fc(text_repr))
         # print('after Linear classifier:', fc_out.shape)
@@ -270,20 +282,21 @@ class LSTMModel(nn.Layer):
         # Shape: (batch_size, num_classes)
         logits = self.output_layer(fc_out)
         # print('output:', logits.shape)
-        
+
         # probs 分类概率值
         probs = F.softmax(logits, axis=-1)
         # print('output probability:', probs.shape)
         return probs
 
-model= LSTMModel(
-        len(vocab),
-        len(label_list),
-        direction='bidirectional',
-        padding_idx=vocab['[PAD]'])
+
+model = LSTMModel(
+    len(vocab),
+    len(label_list),
+    direction='bidirectional',
+    padding_idx=vocab['[PAD]'])
 model = paddle.Model(model)
 optimizer = paddle.optimizer.Adam(
-        parameters=model.parameters(), learning_rate=5e-5)
+    parameters=model.parameters(), learning_rate=5e-5)
 
 loss = paddle.nn.CrossEntropyLoss()
 metric = paddle.metric.Accuracy()
@@ -292,7 +305,8 @@ model.prepare(optimizer, loss, metric)
 # 设置visualdl路径
 log_dir = './visualdl'
 callback = paddle.callbacks.VisualDL(log_dir=log_dir)
-model.fit(train_loader, dev_loader, epochs=10, save_dir='./checkpoints', save_freq=5, callbacks=callback)
+model.fit(train_loader, dev_loader, epochs=10,
+          save_dir='./checkpoints', save_freq=5, callbacks=callback)
 results = model.evaluate(dev_loader)
 print("Finally test acc: %.5f" % results['acc'])
 label_map = {0: '谣言', 1: '非谣言'}
