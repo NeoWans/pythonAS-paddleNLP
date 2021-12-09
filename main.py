@@ -8,7 +8,6 @@ import paddle.nn as nn
 import paddle.nn.functional as F
 import paddlenlp as ppnlp
 from paddlenlp.data import Pad, Stack, Tuple
-from paddlenlp.datasets import MapDatasetWrapper
 
 from utils import load_vocab, convert_example
 
