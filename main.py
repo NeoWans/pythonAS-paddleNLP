@@ -1,12 +1,6 @@
-import zipfile
 import os
 import random
 import csv
-import pandas as pd
-from pandas import DataFrame
-from PIL import Image
-from PIL import ImageEnhance
-import json
 import numpy as np
 from functools import partial
 import paddle
@@ -35,26 +29,25 @@ all_rumor_list = []
 all_non_rumor_list = []
 test_list = []
 
-
 #解析训练数据
-with open(original_data, "r", encoding = 'utf-8') as f:
+with open(original_data, "r", encoding='utf-8') as f:
     text = csv.reader(f)
     for i in text:
         if i[5] != "1" and i[5] != "0":
             continue
         if i[5] == "1":
-            all_rumor_list.append(i[0] + i[1]+"\t"+i[5]+"\n")
-            rumor_num +=1
+            all_rumor_list.append(i[0] + i[1] + "\t" + i[5] + "\n")
+            rumor_num += 1
         else:
-            all_non_rumor_list.append(i[0] + i[1]+"\t"+i[5]+"\n")
-            non_rumor_num +=1
+            all_non_rumor_list.append(i[0] + i[1] + "\t" + i[5] + "\n")
+            non_rumor_num += 1
 
-with open(test_data, "r", encoding = 'utf-8') as f:
+with open(test_data, "r", encoding='utf-8') as f:
     text = csv.reader(f)
     for i in text:
         if i[5] != "1" and i[5] != "0":
             continue
-        test_list.append(i[0] + i[1]+"\t"+i[5]+"\n")
+        test_list.append(i[0] + i[1] + "\t" + i[5] + "\n")
         test_num += 1
 
 print("谣言数据总量为：" + str(rumor_num))
@@ -89,7 +82,8 @@ with open(os.path.join(data_list_path, 'eval_list.txt'), 'w',
     f_eval.seek(0)
     f_eval.truncate()
 
-with open(os.path.join(data_list_path, 'train_list.txt'), 'w',
+with open(os.path.join(data_list_path, 'train_list.txt'),
+          'w',
           encoding='utf-8') as f_train:
     f_train.seek(0)
     f_train.truncate()
@@ -103,7 +97,9 @@ with open(os.path.join(data_list_path, 'test_data.txt'), 'r',
     eval_lines = f_test_init.readlines()
 
 i = 0
-with open(os.path.join(data_list_path, 'train_list.txt'), 'a', encoding='utf-8') as f_train:
+with open(os.path.join(data_list_path, 'train_list.txt'),
+          'a',
+          encoding='utf-8') as f_train:
     for line in lines:
         words = line.split('\t')[-1].replace('\n', '')
         label = line.split('\t')[0]
@@ -113,7 +109,8 @@ with open(os.path.join(data_list_path, 'train_list.txt'), 'a', encoding='utf-8')
         i += 1
 
 j = 0
-with open(os.path.join(data_list_path, 'eval_list.txt'), 'a', encoding='utf-8') as f_test:
+with open(os.path.join(data_list_path, 'eval_list.txt'), 'a',
+          encoding='utf-8') as f_test:
     for line in eval_lines:
         words = line.split('\t')[-1].replace('\n', '')
         label = line.split('\t')[0]
