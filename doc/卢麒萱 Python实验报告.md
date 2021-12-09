@@ -237,8 +237,6 @@
 
   - 首先使用jieba切词，之后将jieba切完后的单词映射词表中单词id。
 
-  ![img](%E5%8D%A2%E9%BA%92%E8%90%B1%20Python%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A.assets/c538bbd04cb2489ab4ff260133247fa7ab8fb0da17874179bc320d773977cb5d.png)
-
   - 使用`paddle.io.DataLoader`接口多线程异步加载数据。
 
   其中用到了PaddleNLP中关于数据处理的API。PaddleNLP提供了许多关于NLP任务中构建有效的数据pipeline的常用API
@@ -248,7 +246,7 @@
   | `paddlenlp.data.Stack` | 堆叠N个具有相同shape的输入数据来构建一个batch，它的输入必须具有相同的shape，输出便是这些输入的堆叠组成的batch数据。 |
   | `paddlenlp.data.Pad`   | 堆叠N个输入数据来构建一个batch，每个输入数据将会被padding到N个输入数据中最大的长度 |
   | `paddlenlp.data.Tuple` | 将多个组batch的函数包装在一起                                |
-
+  
   ```python
   import jieba
   
@@ -280,7 +278,7 @@
       print(k, v)
       break
   ```
-
+  
 - 构造dataloder
 
   下面的`create_data_loader`函数用于创建运行和预测时所需要的`DataLoader`对象。
